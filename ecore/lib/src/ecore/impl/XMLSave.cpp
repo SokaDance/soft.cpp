@@ -287,9 +287,9 @@ void XMLSave::saveEObjectMany( const std::shared_ptr<EObject>& eObject, const st
     auto l = anyListCast<std::shared_ptr<EObject>>( val );
     auto failure = false;
     std::string s = "";
-    for( auto it = std::begin( *l ); it != std::end( *l ); ++it )
+    bool first = true;
+    for( auto obj : l )
     {
-        auto obj = *it;
         auto id = getHRef( obj );
         if( id.empty() )
         {
@@ -298,10 +298,11 @@ void XMLSave::saveEObjectMany( const std::shared_ptr<EObject>& eObject, const st
         }
         else
         {
-            if( it != std::begin( *l ) )
+            if( !first )
                 s += " ";
             s += id;
         }
+        first = false;
     }
     if( !failure && !s.empty() )
         str_.addAttribute( getQName( eFeature ), s );
@@ -400,9 +401,9 @@ void XMLSave::saveIDRefMany( const std::shared_ptr<EObject>& eObject, const std:
     auto l = anyListCast<std::shared_ptr<EObject>>( val );
     auto failure = false;
     std::string s = "";
-    for( auto it = std::begin( *l ); it != std::end( *l ); ++it )
+    bool first = true;
+    for( auto o : l )
     {
-        auto o = *it;
         auto id = getIDRef( o );
         if( id.empty() )
         {
@@ -411,10 +412,11 @@ void XMLSave::saveIDRefMany( const std::shared_ptr<EObject>& eObject, const std:
         }
         else
         {
-            if( it != std::begin( *l ) )
+            if( !first )
                 s += " ";
             s += id;
         }
+        first = false;
     }
     if( !failure && !s.empty() )
         str_.addAttribute( getQName( eFeature ), s );

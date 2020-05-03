@@ -13,7 +13,6 @@ set(SOURCE_FILES
     src/EcoreUtilsTests.cpp
     src/EAttributeTests.cpp
     src/EClassTests.cpp
-    src/ECollectionViewTests.cpp
     src/EDynamicModelTests.cpp
     src/EFactoryTests.cpp
     src/EObjectEListTests.cpp

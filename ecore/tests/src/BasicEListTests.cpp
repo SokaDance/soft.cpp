@@ -79,25 +79,39 @@ BOOST_AUTO_TEST_CASE( Get )
     BOOST_CHECK_EQUAL( list.get( 1 ), 2 );
 }
 
-BOOST_AUTO_TEST_CASE( Iterators_Empty )
+BOOST_AUTO_TEST_CASE( Iterator_Empty )
 {
     BasicEList<int> list;
+    // stl iterator
     BOOST_CHECK( list.begin() == list.end() );
 
-    for( int i = 0; i < 10; ++i )
-        list.add( i );
+    // list iteraror
+    auto it = list.iterator();
+    BOOST_CHECK( !it->hasNext() );
 
-    int test = 0;
+    // range loop
+    bool called = false;
     for( int i : list )
-        BOOST_CHECK_EQUAL( i, test++ );
+        called = true;
+    BOOST_CHECK( !called );
 }
 
 BOOST_AUTO_TEST_CASE( Iterators )
 {
+    // init
     BasicEList<int> list;
     for( int i = 0; i < 10; ++i )
         list.add( i );
 
+    // stl iterator
+    BOOST_CHECK( list.begin() != list.end() );
+
+    // list iteraror
+    auto it = list.iterator();
+    BOOST_CHECK( it->hasNext() );
+    BOOST_CHECK_EQUAL( it->next() , 0 );
+
+    // range loop
     int test = 0;
     for( int i : list )
         BOOST_CHECK_EQUAL( i, test++ );

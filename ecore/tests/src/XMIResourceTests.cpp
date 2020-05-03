@@ -21,7 +21,7 @@
 using namespace ecore;
 using namespace ecore::impl;
 
-#define NB_ITERATIONS 8
+#define NB_ITERATIONS 50000
 #define LOG 1
 
 BOOST_AUTO_TEST_SUITE( XMIResourceTests )

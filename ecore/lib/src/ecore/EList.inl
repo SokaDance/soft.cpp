@@ -18,6 +18,58 @@
 namespace ecore
 {
     template <typename T>
+    bool EList<T>::contains( const T& e ) const
+    {
+        for( auto it = iterator() ; it->hasNext(); )
+        {
+            if( it->next() == e )
+                return true;
+        }
+        return false;
+    }
+    
+    template <typename T>
+    std::size_t EList<T>::indexOf(const T& e) const
+    {
+        auto i = 0;
+        for (auto it = iterator() ; it->hasNext(); ++i)
+        {
+            if( it->next() == e )
+                return i;
+        }
+        return -1;
+    }
+
+    template <typename T>
+    inline std::shared_ptr<EIterator<T>> EList<T>::iterator() const
+    {
+        class Iterator : public EIterator<T>
+        {
+        public:
+            Iterator( const EList<T>* list )
+                : list_( list )
+                , pos_( 0 )
+            {
+            }
+
+            virtual bool hasNext()
+            {
+                return pos_ != list_->size();
+            }
+
+            virtual T next()
+            {
+                return list_->get( pos_++ );
+            }
+
+        private:
+            const EList<T>* list_;
+            std::size_t pos_;
+        };
+        return std::make_shared<Iterator>(this);
+    }
+
+    template <typename T>
     bool operator==( const EList<T>& lhs, const EList<T>& rhs )
     {
         return lhs.size() == rhs.size() && std::equal( lhs.begin(), lhs.end(), rhs.begin() );

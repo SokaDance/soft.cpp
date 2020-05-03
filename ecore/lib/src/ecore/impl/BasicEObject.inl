@@ -16,7 +16,6 @@
 #include "ecore/Constants.hpp"
 #include "ecore/EAdapter.hpp"
 #include "ecore/EClass.hpp"
-#include "ecore/ECollectionView.hpp"
 #include "ecore/ENotifyingList.hpp"
 #include "ecore/EOperation.hpp"
 #include "ecore/EReference.hpp"
@@ -26,6 +25,7 @@
 #include "ecore/EcoreUtils.hpp"
 #include "ecore/impl/AbstractAdapter.hpp"
 #include "ecore/impl/Notification.hpp"
+#include "ecore/impl/TreeIterator.hpp"
 
 #include <sstream>
 #include <string>
@@ -125,9 +125,10 @@ namespace ecore::impl
     }
 
     template <typename... I>
-    std::shared_ptr<const ECollectionView<std::shared_ptr<ecore::EObject>>> BasicEObject<I...>::eAllContents() const
+    std::shared_ptr<EIterator<std::shared_ptr<ecore::EObject>>> BasicEObject<I...>::eAllContents() const
     {
-        return std::make_shared<ECollectionView<std::shared_ptr<ecore::EObject>>>( eContents() );
+        return std::make_shared<TreeIterator<std::shared_ptr<ecore::EObject>>>(
+            eContents()->iterator(), []( const std::shared_ptr<EObject>& o ) { return o->eContents()->iterator(); } );
     }
 
     template <typename... I>
@@ -199,7 +200,7 @@ namespace ecore::impl
 
     template <typename... I>
     std::string BasicEObject<I...>::eURIFragmentSegment( const std::shared_ptr<EStructuralFeature>& eFeature,
-                                                            const std::shared_ptr<EObject>& eObject ) const
+                                                         const std::shared_ptr<EObject>& eObject ) const
     {
         std::stringstream s;
         s << "@";
@@ -251,8 +252,8 @@ namespace ecore::impl
 
     template <typename... I>
     std::shared_ptr<EReference> BasicEObject<I...>::eContainmentFeature( const std::shared_ptr<EObject>& eObject,
-                                                                            const std::shared_ptr<EObject>& eContainer,
-                                                                            int eContainerFeatureID )
+                                                                         const std::shared_ptr<EObject>& eContainer,
+                                                                         int eContainerFeatureID )
     {
         if( eContainer )
         {
@@ -306,7 +307,7 @@ namespace ecore::impl
 
     template <typename... I>
     std::shared_ptr<ENotificationChain> BasicEObject<I...>::eSetInternalResource( const std::shared_ptr<EResource>& newResource,
-                                                                                     const std::shared_ptr<ENotificationChain>& n )
+                                                                                  const std::shared_ptr<ENotificationChain>& n )
     {
         auto notifications = n;
         auto oldResource = eResource_.lock();
@@ -474,6 +475,14 @@ namespace ecore::impl
 
     template <typename... I>
     std::shared_ptr<ENotificationChain> BasicEObject<I...>::eBasicInverseAdd( const std::shared_ptr<EObject>& otherEnd,
+                                                                              int featureID,
+                                                                              const std::shared_ptr<ENotificationChain>& notifications )
+    {
+        return notifications;
+    }
+
+    template <typename... I>
+    std::shared_ptr<ENotificationChain> BasicEObject<I...>::eBasicInverseRemove( const std::shared_ptr<EObject>& otherEnd,
                                                                                  int featureID,
                                                                                  const std::shared_ptr<ENotificationChain>& notifications )
     {
@@ -481,16 +490,9 @@ namespace ecore::impl
     }
 
     template <typename... I>
-    std::shared_ptr<ENotificationChain> BasicEObject<I...>::eBasicInverseRemove(
-        const std::shared_ptr<EObject>& otherEnd, int featureID, const std::shared_ptr<ENotificationChain>& notifications )
-    {
-        return notifications;
-    }
-
-    template <typename... I>
     std::shared_ptr<ENotificationChain> BasicEObject<I...>::eInverseAdd( const std::shared_ptr<EObject>& otherEnd,
-                                                                            int featureID,
-                                                                            const std::shared_ptr<ENotificationChain>& n )
+                                                                         int featureID,
+                                                                         const std::shared_ptr<ENotificationChain>& n )
     {
         auto notifications = n;
         if( featureID >= 0 )
@@ -504,8 +506,8 @@ namespace ecore::impl
 
     template <typename... I>
     std::shared_ptr<ENotificationChain> BasicEObject<I...>::eInverseRemove( const std::shared_ptr<EObject>& otherEnd,
-                                                                               int featureID,
-                                                                               const std::shared_ptr<ENotificationChain>& notifications )
+                                                                            int featureID,
+                                                                            const std::shared_ptr<ENotificationChain>& notifications )
     {
         if( featureID >= 0 )
             return eBasicInverseRemove( otherEnd, featureID, notifications );
@@ -580,8 +582,8 @@ namespace ecore::impl
 
     template <typename... I>
     std::shared_ptr<ENotificationChain> BasicEObject<I...>::eBasicSetContainer( const std::shared_ptr<EObject>& newContainer,
-                                                                                   int newContainerFeatureID,
-                                                                                   const std::shared_ptr<ENotificationChain>& n )
+                                                                                int newContainerFeatureID,
+                                                                                const std::shared_ptr<ENotificationChain>& n )
     {
         auto notifications = n;
         auto oldContainer = eContainer_.lock();

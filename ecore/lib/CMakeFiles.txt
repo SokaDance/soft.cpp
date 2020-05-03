@@ -19,9 +19,10 @@ set(HEADER_ECORE_FILES
     src/ecore/EAdapter.hpp
     src/ecore/EContentAdapter.hpp
     src/ecore/EcoreUtils.hpp
-    src/ecore/ECollectionView.hpp
     src/ecore/EDiagnostic.hpp
     src/ecore/EFeatureMap.hpp
+    src/ecore/EIterator.hpp
+    src/ecore/EIteratorAdapter.hpp
     src/ecore/ENotification.hpp
     src/ecore/ENotificationChain.hpp
     src/ecore/ENotifier.hpp
@@ -32,7 +33,6 @@ set(HEADER_ECORE_FILES
     src/ecore/EResourceFactory.hpp 
     src/ecore/EResourceFactoryRegistry.hpp 
     src/ecore/EResourceSet.hpp
-    src/ecore/ETreeIterator.hpp
     src/ecore/EUnsettableList.hpp
     src/ecore/SmartPtr.hpp
     src/ecore/Stream.hpp
@@ -74,6 +74,7 @@ set(HEADER_ECORE_IMPL_FILES
     src/ecore/impl/ResourceURIConverter.hpp
     src/ecore/impl/SaxParserPool.hpp
     src/ecore/impl/StringUtils.hpp
+    src/ecore/impl/TreeIterator.hpp
     src/ecore/impl/XMILoad.hpp
     src/ecore/impl/XMIResource.hpp
     src/ecore/impl/XMIResourceFactory.hpp

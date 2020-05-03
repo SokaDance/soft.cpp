@@ -1,7 +1,6 @@
 #include "ecore/impl/AbstractResource.hpp"
 #include "ecore/EAttribute.hpp"
 #include "ecore/EClass.hpp"
-#include "ecore/ECollectionView.hpp"
 #include "ecore/ENotificationChain.hpp"
 #include "ecore/ENotifyingList.hpp"
 #include "ecore/EObject.hpp"
@@ -15,6 +14,7 @@
 #include "ecore/impl/EObjectInternal.hpp"
 #include "ecore/impl/ResourceURIConverter.hpp"
 #include "ecore/impl/StringUtils.hpp"
+#include "ecore/impl/TreeIterator.hpp"
 
 #include <cctype>
 #include <sstream>
@@ -93,9 +93,10 @@ std::shared_ptr<EList<std::shared_ptr<EObject>>> AbstractResource::getContents()
     return eContents_;
 }
 
-std::shared_ptr<const ECollectionView<std::shared_ptr<EObject>>> AbstractResource::getAllContents() const
+std::shared_ptr<EIterator<std::shared_ptr<EObject>>> AbstractResource::getAllContents() const
 {
-    return std::make_shared<ECollectionView<std::shared_ptr<ecore::EObject>>>( getContents() );
+    return std::make_shared<TreeIterator<std::shared_ptr<ecore::EObject>>>(
+        getContents()->iterator(), []( const std::shared_ptr<EObject>& o ) { return o->eContents()->iterator(); } );
 }
 
 std::shared_ptr<EObject> AbstractResource::getEObject( const std::string& uriFragment ) const
@@ -126,17 +127,17 @@ std::string AbstractResource::getURIFragment( const std::shared_ptr<EObject>& eO
     if( id.empty() )
     {
         auto eCurrent = eObject;
-        if(eCurrent->getInternal().eInternalResource() == getThisPtr() )
+        if( eCurrent->getInternal().eInternalResource() == getThisPtr() )
             return "/" + getURIFragmentRootSegment( eObject );
         else
         {
             std::deque<std::string> fragmentPath;
             auto isContained = false;
-            for( auto eContainer = eCurrent->eContainer(); eContainer; eContainer = eCurrent->eContainer())
+            for( auto eContainer = eCurrent->eContainer(); eContainer; eContainer = eCurrent->eContainer() )
             {
                 if( id.empty() )
                 {
-                    auto segment = eContainer->getInternal().eURIFragmentSegment(eCurrent->eContainingFeature(), eCurrent);
+                    auto segment = eContainer->getInternal().eURIFragmentSegment( eCurrent->eContainingFeature(), eCurrent );
                     fragmentPath.push_front( segment );
                 }
 
@@ -151,7 +152,7 @@ std::string AbstractResource::getURIFragment( const std::shared_ptr<EObject>& eO
             if( !isContained )
                 return "/-1";
 
-            fragmentPath.push_front( id.empty() ? getURIFragmentRootSegment(eCurrent) : "?" + id );
+            fragmentPath.push_front( id.empty() ? getURIFragmentRootSegment( eCurrent ) : "?" + id );
             fragmentPath.push_front( "" );
             return join( fragmentPath, "/" );
         }
@@ -177,7 +178,7 @@ std::shared_ptr<EObject> AbstractResource::getObjectByPath( const std::vector<st
 std::shared_ptr<EObject> AbstractResource::getObjectByID( const std::string& id ) const
 {
     auto allContents = getAllContents();
-    for( auto eObject : *allContents )
+    for( auto eObject : allContents )
     {
         auto objectID = EcoreUtils::getID( eObject );
         if( id == objectID )

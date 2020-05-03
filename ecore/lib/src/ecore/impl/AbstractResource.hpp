@@ -45,7 +45,7 @@ namespace ecore::impl
 
         virtual std::shared_ptr<EList<std::shared_ptr<EObject>>> getContents() const;
 
-        virtual std::shared_ptr<const ECollectionView<std::shared_ptr<EObject>>> getAllContents() const;
+        virtual std::shared_ptr<EIterator<std::shared_ptr<EObject>>> getAllContents() const;
 
         virtual std::shared_ptr<EObject> getEObject(const std::string& uriFragment) const;
 
